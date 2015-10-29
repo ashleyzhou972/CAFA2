@@ -1,5 +1,11 @@
 gofile='/home/nzhou/Documents/CAFA2/go.obo';
 
+%dependencies:
+% Ashley_import.m
+% normal_ont_eval.m
+% nopartof_ont_eval.m
+
+
 %calculate number of edges in both ontologies(normal and nopartof)
 %percent = card(part_of)/(card(part_of)+card(is_a))
 ont=pfp_ontbuild('GO',gofile);
@@ -27,12 +33,51 @@ tic;
 toc;
 
 %calculate fmax and smin for top10 submissions per ontology
-%BPO
-subid=[117,85,129,79,132,94,83,75,119]; %could not find team ID for "Jones-UCL";
-subdir = cell(numel(subid),1);
+subid=[117,85,129,132,94,83,119]; %could not find team ID for "Jones-UCL";
+% excluded team 75 and team 79 becasue their files are not named correctly;
 submission_dir='/home/nzhou/Documents/CAFA2/CAFA2_submissions/';
-for i = 1:9
-    subdir{i}=strcat(submission_dir,num2str(subid(i)));
-    fmax_BPO.norm = normal_ont_eval(gofile,subfiles(i));
-    fmax_BPO.nopartof = 
+filename = cell(1,7);
+pred = cell(1,7);
+for i = 1:7
+    pred{i} = Ashley_import(subid(i));
+    subdir = strcat(submission_dir,num2str(subid(i)));
+    filename{i} = strcat(subdir,'/unzipped/merge.tab');
 end
+system('cd /home/nzhou/Documents/CAFA2/CAFA2_submissions/; sh /home/nzhou/Documents/CAFA2/CAFA2_submissions/run_merge.sh');
+
+fmax_normal=cell(1,7);
+smin_normal=cell(1,7);
+fmax_nopartof=cell(1,7);
+smin_nopartof=cell(1,7);
+ont=pfp_ontbuild('GO',gofile);
+ont0=pfp_ontbuild_nopartof(gofile);
+submission1=cell(1,7);     %stores normal prediction files
+submission2 = cell(1,7);   %stores nopartof prediction files
+for k=2:7
+    tic;
+    mergefile = filename{k};
+    submission1{k}.CCO=cafa_import(mergefile,ont.CCO);
+    submission1{k}.MFO=cafa_import(mergefile,ont.MFO);
+    submission1{k}.BPO=cafa_import(mergefile,ont.BPO);
+    submission2{k}.CCO=cafa_import(mergefile,ont0.CCO);
+    submission2{k}.MFO=cafa_import(mergefile,ont0.MFO);
+    submission2{k}.BPO=cafa_import(mergefile,ont0.BPO);
+    toc;
+end;
+
+pfp_savevar('submission_normal',submission1);
+pfp_savevar('submission_nopartof',submission2);
+for l=2:7
+    tic;
+    [fmax_normal{l},smin_normal{l}]=normal_ont_eval(gofile,submission1{l});
+    [fmax_nopartof{l},smin_nopartof{l}]=nopartof_ont_eval(gofile,submission2{l});
+    toc;
+end;
+pfp_savevar('fmax_normal',fmax_normal);
+pfp_savevar('smin_normal',smin_normal);
+pfp_savevar('fmax_nopartof',fmax_nopartof);
+pfp_savevar('smin_nopartof',smin_nopartof);
+
+
+
+

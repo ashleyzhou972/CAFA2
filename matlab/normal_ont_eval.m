@@ -1,9 +1,8 @@
-function [fmax,smin] = normal_ont_eval(gofile, pred)
+function [fmax,smin] = normal_ont_eval(gofile, prediction_file)
 %output fmax for evaluating a CAFA2 submission using a normal ontology
 %structure (with "isa" and "partof" edges)
-%   [input] a prediction structure
-%           should be the output of the cafa_import
-%   function
+%   [input] gofile
+%           prediction_file: output of cafa_import
 %   [output] fmax value and smin value
 ont=pfp_ontbuild('GO',gofile);
 %benchmarks
@@ -15,10 +14,11 @@ config.mfoa     = pfp_oabuild(ont.MFO,'/home/nzhou/Documents/CAFA2/CAFA matlab/Y
 config.bpoa     = pfp_oabuild(ont.BPO,'/home/nzhou/Documents/CAFA2/CAFA matlab/Yuxiang benchmarks/propagated_BPO.txt');
 config.ccoa     = pfp_oabuild(ont.CCO,'/home/nzhou/Documents/CAFA2/CAFA matlab/Yuxiang benchmarks/propagated_CCO.txt');
 
-%construct confusion matrix
-cm1.CCO=pfp_seqcm(config.bm_cco,pred.CCO,config.ccoa,'toi','noroot');
-cm1.MFO=pfp_seqcm(config.bm_mfo,pred.MFO,config.mfoa,'toi','noroot');
-cm1.BPO=pfp_seqcm(config.bm_bpo,pred.BPO,config.bpoa,'toi','noroot');
+%construc confusion matrix
+cm1.CCO=pfp_seqcm(config.bm_cco,prediction_file.CCO,config.ccoa,'toi','noroot');
+cm1.MFO=pfp_seqcm(config.bm_mfo,prediction_file.MFO,config.mfoa,'toi','noroot');
+cm1.BPO=pfp_seqcm(config.bm_bpo,prediction_file.BPO,config.bpoa,'toi','noroot');
+
 %precision and recall
 pr.CCO = pfp_convcmstruct(cm1.CCO, 'pr','beta',1);
 pr.MFO = pfp_convcmstruct(cm1.MFO, 'pr','beta',1);

@@ -1,4 +1,4 @@
-function [ fmax, smin ] = nopartof_ont_eval( gofile, submission_file)
+function [ fmax, smin ] = nopartof_ont_eval( gofile, prediction_file)
 % output fmax for evaluating a CAFA2 submission using a "partial" ontology
 %structure (with only "isa" edges and no "partof" edges)
 %   [input] submission_file
@@ -13,14 +13,11 @@ config.bm_bpo   = pfp_loaditem('/home/nzhou/Documents/CAFA2/CAFA matlab/Yuxiang 
 config.mfoa     = pfp_oabuild(ont0.MFO,'/home/nzhou/Documents/CAFA2/CAFA matlab/Yuxiang benchmarks/propagated_MFO.txt');
 config.bpoa     = pfp_oabuild(ont0.BPO,'/home/nzhou/Documents/CAFA2/CAFA matlab/Yuxiang benchmarks/propagated_BPO.txt');
 config.ccoa     = pfp_oabuild(ont0.CCO,'/home/nzhou/Documents/CAFA2/CAFA matlab/Yuxiang benchmarks/propagated_CCO.txt');
-%import submission
-submission1.CCO=cafa_import(submission_file,ont0.CCO);
-submission1.MFO=cafa_import(submission_file,ont0.MFO);
-submission1.BPO=cafa_import(submission_file,ont0.BPO);
+
 %construc confusion matrix
-cm1.CCO=pfp_seqcm(config.bm_cco,submission1.CCO,config.ccoa,'toi','noroot');
-cm1.MFO=pfp_seqcm(config.bm_mfo,submission1.MFO,config.mfoa,'toi','noroot');
-cm1.BPO=pfp_seqcm(config.bm_bpo,submission1.BPO,config.bpoa,'toi','noroot');
+cm1.CCO=pfp_seqcm(config.bm_cco,prediction_file.CCO,config.ccoa,'toi','noroot');
+cm1.MFO=pfp_seqcm(config.bm_mfo,prediction_file.MFO,config.mfoa,'toi','noroot');
+cm1.BPO=pfp_seqcm(config.bm_bpo,prediction_file.BPO,config.bpoa,'toi','noroot');
 %precision and recall
 pr.CCO = pfp_convcmstruct(cm1.CCO, 'pr','beta',1);
 pr.MFO = pfp_convcmstruct(cm1.MFO, 'pr','beta',1);
